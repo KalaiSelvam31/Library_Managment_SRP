@@ -6,11 +6,13 @@ class Book{
     private String Authorname;
     private int Edition;
     private boolean isAvailable;
-    Book(String Bookname,String Authorname,int Edition){
+    private int Copies;
+    Book(String Bookname,String Authorname,int Edition,int copy){
         this.Bookname=Bookname;
         this.Authorname=Authorname;
         this.Edition=Edition;
         this.isAvailable=true;
+        this.Copies=copy;
     }
 
     Boolean checkavailability(){
@@ -53,31 +55,41 @@ class UserRegister{
 }
 class Borrowmanager{
     private HashMap <String,Integer>borrow= new HashMap<>();
-    boolean addborrow(String name){
-        if(borrow.containsKey(name)&&borrow.get(name)<3){
-            borrow.put(name, borrow.getOrDefault(name, 0)+1);
-            System.out.println(borrow.get(name)+"/3 is borrowed");
+    private HashMap <String,List<String>>borrowedbookname=new HashMap<>();
+    boolean addborrow(String username,String bookname){
+        if(borrow.containsKey(username)&&borrow.get(username)<3){
+            borrow.put(username, borrow.getOrDefault(username, 0)+1);
+            borrowedbookname.putIfAbsent(username,new ArrayList<>());
+            borrowedbookname.get(username).add(bookname);
+            System.out.println(borrow.get(username)+"/3 is borrowed");
             return true;
         }
-        else if(borrow.containsKey(name)&&borrow.get(name)==3){
+        else if(borrow.containsKey(username)&&borrow.get(username)==3){
             System.out.println("Limit exceeds");
                 return false;
         }
         else{
-            borrow.put(name, 1);
-            System.out.println(borrow.get(name)+"/3 is borrowed");
+            borrow.put(username, 1);
+            borrowedbookname.put(username,new ArrayList<>());
+            borrowedbookname.get(username).add(bookname);
+            System.out.println(borrow.get(username)+"/3 is borrowed");
             return true;
         }
     }
-    void removeborrow(String name){
-        if(borrow.containsKey(name)&&borrow.get(name)>=1){
-            borrow.put(name, borrow.getOrDefault(name, 0)-1);
-            System.out.println("Limit updated: "+borrow.get(name)+"/3");
-            if(borrow.get(name)==0) borrow.remove(name);
+    void removeborrow(String username,String bookname){
+        if(borrow.containsKey(username)&&borrow.get(username)>=1){
+            borrow.put(username, borrow.getOrDefault(username, 0)-1);
+            borrowedbookname.get(username).remove(bookname);
+            System.out.print("Limit updated: "+borrow.get(username)+"/3 ");
+            System.out.println("Thank you "+username+" for returning the book.");
+            if(borrow.get(username)==0) borrow.remove(username);
         }
         else{
             System.out.println("No Booked is borrowed by the Customer. ");
         }
+    }
+    HashMap<String,List<String>> getBorrowList(){
+        return borrowedbookname;
     }
 }
 class Librarian{
@@ -103,7 +115,7 @@ class LibrarryManagement{
         if(ur.ValidateUser(username)){
         for(Book book:books){
             if(book.getBookname().equals(name)&&book.checkavailability()){
-                if(b.addborrow(name)){
+                if(b.addborrow(username,name)){
                 book.makeBorrow();
                 System.out.println("The Book named: "+name+" is borrowed by "+username+" Successfully");
                 return;
@@ -124,7 +136,7 @@ class LibrarryManagement{
         if(ur.ValidateUser(username)){
         for(Book book:books){
             if(book.getBookname().equals(bookname)&& ! book.checkavailability()){
-                b.removeborrow(bookname);
+                b.removeborrow(username,bookname);
                 book.makeReturn();
                 return;
                 
@@ -134,6 +146,10 @@ class LibrarryManagement{
         
     }
 }
+    void listpendingBorrow(String username){
+        HashMap<String,List<String>> l =b.getBorrowList();
+        System.out.println("The Remaining borrowed books by "+username+":"+l.get(username));
+    }
 
 }
 
@@ -143,10 +159,14 @@ public class SRPLibrary {
         UserRegister us= new UserRegister();
         Borrowmanager b = new Borrowmanager();
         LibrarryManagement lib=new LibrarryManagement(lin,us,b);
-        lin.addbook(new Book("PonniyenSelvam", "Kalki", 1999));
-        lin.addbook(new Book("HarryPotter", "Rolling", 2005));
-        lin.addbook(new Book("PirateOfTheCarrabiean", "Elliot", 2000));
-        lin.addbook(new Book("NCERT_Science", "NCERT", 2021));
+        lin.addbook(new Book("PonniyenSelvam", "Kalki", 1999,1));
+        lin.addbook(new Book("HarryPotter", "Rolling", 2005,1));
+        lin.addbook(new Book("PirateOfTheCarrabiean", "Elliot", 2000,1));
+        lin.addbook(new Book("NCERT_Science", "NCERT", 2021,1));
+        lin.addbook(new Book("PonniyenSelvam", "Kalki", 1999,2));
+        lin.addbook(new Book("HarryPotter", "Rolling", 2005,2));
+        lin.addbook(new Book("PirateOfTheCarrabiean", "Elliot", 2000,2));
+        lin.addbook(new Book("NCERT_Science", "NCERT", 2021,2));
 
         us.adduser(new User("Kalaiselvam",46));
         us.adduser(new User("Kamalesh",47));
@@ -154,8 +174,9 @@ public class SRPLibrary {
         us.adduser(new User("Jegatha",45));
 
         lib.borrowbook("Kalaiselvam", "HarryPotter");
-        lib.returnBook("Kalaiselvam", "HarryPotter");
-        lib.returnBook("Kalaiselvam", "HarryPottr");
+        lib.borrowbook("Kalaiselvam", "PonniyenSelvam");
+        // lib.returnBook("Kalaiselvam", "HarryPotter");
+        lib.listpendingBorrow("Kalaiselvam");
         
 
     }
