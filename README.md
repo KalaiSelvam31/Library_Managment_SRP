@@ -20,6 +20,7 @@ LibraryManagement/
 - 🔁 Return borrowed books
 - ❌ Handle invalid users or incorrect book names
 - ✔️ Validation for book availability
+- 📖 Tracking Borrow List for Individual User
 
 ## 🧠 Design Highlights
 
