@@ -49,8 +49,10 @@ LibraryManagement/
 ```text
 1/3 is borrowed
 The Book named: HarryPotter is borrowed by Kalaiselvam Successfully
-Limit updated: 0/3
-No Book Found.Please check for the correct book name.
+2/3 is borrowed
+The Book named: PonniyenSelvam is borrowed by Kalaiselvam Successfully
+Limit updated: 1/3 Thank you Kalaiselvam for returning the book.
+The Remaining borrowed books by Kalaiselvam:[PonniyenSelvam]
 ```
 
 ## 🔧 Future Improvements
